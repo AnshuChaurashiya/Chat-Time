@@ -20,7 +20,7 @@ app.set('io', io);
 
 // Middleware
 app.use(cors({
-  origin: [ 'http://localhost:5173'],
+  origin: [ 'http://localhost:5173', 'https://chat-time-viya.onrender.com'],
   credentials: true
 }));
 
