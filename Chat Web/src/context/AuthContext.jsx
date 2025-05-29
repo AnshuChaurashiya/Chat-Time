@@ -3,8 +3,8 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { io } from 'socket.io-client';
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
-console.log(backendUrl);
+const backendUrl = 'https://chat-time-backend.onrender.com';
+// console.log(backendUrl);
 
 axios.defaults.baseURL = backendUrl;
 
