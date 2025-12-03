@@ -167,7 +167,7 @@ function ChatContainer({ onProfileClick }) {
   return (
     <div 
     style={{backgroundImage:`url("https://i.pinimg.com/736x/8c/98/99/8c98994518b575bfd8c949e91d20548b.jpg")`}}
-     className="flex-1 flex flex-col h-[99%]  bg-gray-100  border-gray-100 border  rounded-2xl  overflow-y-auto overflow-hidden">
+     className="flex-1 flex flex-col h-[99vh]  bg-gray-100  border-gray-100 border  rounded-2xl  overflow-y-auto overflow-hidden">
       {/* Chat Header */}
       <motion.div 
         initial={{ y: -20, opacity: 0 }}
