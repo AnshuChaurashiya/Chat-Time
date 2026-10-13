@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import SideBaar from '../../components/SideBaar';
 import ChatContainer from '../../components/ChatContainer';
 import RightSlider from '../../components/RightSlider';
@@ -8,60 +8,87 @@ function Home() {
   const { selectUser } = useContext(ChatContext);
   const [showProfile, setShowProfile] = useState(false);
 
-  const handleCloseProfile = () => {
-    setShowProfile(false);
-  };
+  const handleCloseProfile = () => setShowProfile(false);
+  const handleProfileClick = () => setShowProfile(true);
 
-  const handleProfileClick = () => {
-    setShowProfile(true);
-  };
+  // Close the profile panel whenever the person switches or deselects a chat
+  useEffect(() => {
+    setShowProfile(false);
+  }, [selectUser?._id]);
+
+  // Close the profile panel with Escape
+  useEffect(() => {
+    if (!showProfile) return;
+    const onKey = (e) => e.key === 'Escape' && handleCloseProfile();
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showProfile]);
+
+  const profileOpen = Boolean(selectUser && showProfile);
+
+  // Shared look for each floating panel
+  const panel =
+    'h-full min-h-0 overflow-hidden rounded-2xl ring-1 ring-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.35)]';
 
   return (
-    <div className="w-full h-screen gap-2 p-2 overflow-hidden">
-      <div
-        className={`grid w-full gap-1 h-full ${
-          selectUser 
-            ? showProfile
-              ? 'sm:grid-cols-[1fr_2fr] md:grid-cols-[1fr_2fr_1.5fr]'
-              : 'sm:grid-cols-[1fr_2fr]'
-            : 'sm:grid-cols-[1fr_2fr]'
-        } grid-cols-1 relative`}
-      >
-        {/* Sidebar */}
-        <div className="h-full overflow-hidden">
+    <main className="h-screen w-full overflow-hidden bg-[#12161d] bg-[radial-gradient(60rem_40rem_at_10%_-10%,rgba(56,189,248,0.10),transparent),radial-gradient(50rem_40rem_at_100%_110%,rgba(129,140,248,0.12),transparent)] p-2 sm:p-3">
+      <div className="flex h-full w-full gap-2 sm:gap-3">
+        {/* Sidebar: full screen on mobile until a chat is opened */}
+        <aside
+          className={`${panel} ${
+            selectUser ? 'hidden sm:block' : 'block'
+          } w-full sm:w-[320px] md:w-[360px] shrink-0`}
+        >
           <SideBaar />
-        </div>
+        </aside>
 
-        {/* Chat */}
-        <div className="h-full overflow-hidden">
-          <ChatContainer selectUser={selectUser} onProfileClick={handleProfileClick} />
-        </div>
+        {/* Chat: full screen on mobile once a chat is opened */}
+        <section
+          className={`${panel} ${
+            selectUser ? 'block' : 'hidden sm:block'
+          } min-w-0 flex-1`}
+        >
+          <ChatContainer
+            selectUser={selectUser}
+            onProfileClick={handleProfileClick}
+          />
+        </section>
 
-        {/* Right Slider (shown if user is selected and profile is clicked) */}
-        {selectUser && showProfile && (
+        {/* Profile: inline panel on desktop, drawer on mobile */}
+        {selectUser && (
           <>
-            {/* Overlay for mobile */}
-            <div 
-              className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+            {/* Mobile backdrop */}
+            <div
               onClick={handleCloseProfile}
+              aria-hidden="true"
+              className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+                showProfile ? 'opacity-100' : 'pointer-events-none opacity-0'
+              }`}
             />
-            {/* Profile Slider */}
-            <div className={`
-              h-full overflow-hidden
-              md:block
-              fixed md:relative
-              top-0 right-0
-              w-full md:w-auto
-              z-50
-              transition-transform duration-300 ease-in-out
-              ${showProfile ? 'translate-x-0' : 'translate-x-full'}
-            `}>
-              <RightSlider selectUser={selectUser} onClose={handleCloseProfile} />
-            </div>
+
+            <aside
+              aria-label="Contact profile"
+              aria-hidden={!profileOpen}
+              className={`
+                ${panel}
+                fixed right-0 top-0 z-50 h-full w-[88%] max-w-sm rounded-none md:rounded-2xl
+                transition-all duration-300 ease-out
+                md:static md:z-auto md:max-w-none md:shrink-0
+                ${
+                  profileOpen
+                    ? 'translate-x-0 md:w-[340px] md:opacity-100'
+                    : 'translate-x-full md:translate-x-0 md:w-0 md:opacity-0 md:ring-0 md:shadow-none'
+                }
+              `}
+            >
+              <div className="h-full w-full md:w-[340px]">
+                <RightSlider selectUser={selectUser} onClose={handleCloseProfile} />
+              </div>
+            </aside>
           </>
         )}
       </div>
-    </div>
+    </main>
   );
 }
 
